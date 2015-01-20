@@ -1,0 +1,49 @@
+"*":
+  "exception-reporting":
+    userId: "2ea2c470-8b70-1c35-89f6-8813faaa465a"
+  welcome:
+    showOnStartup: false
+  metrics:
+    userId: "52da33fcb06c65312f0480376129b839bdd3774a"
+  editor:
+    fontFamily: "Essential PragmataPro"
+    fontSize: 14
+    showIndentGuide: true
+    autoIndentOnPaste: false
+    softWrap: true
+    scrollSensitivity: 20
+    scrollPastEnd: true
+    invisibles: {}
+  core:
+    disabledPackages: [
+      "file-icons"
+      "autocomplete"
+      "vim-mode"
+      "minimap"
+    ]
+    themes: [
+      "spacegray-dark-ui"
+      "spacegray-dark-syntax"
+    ]
+  "go-plus":
+    lintOnSave: false
+    vetOnSave: false
+  gocode:
+    includeCompletionsFromAllBuffers: false
+  minimap:
+    plugins:
+      "find-and-replace": true
+      "highlight-selected": true
+  "autocomplete-plus":
+    autoActivationDelay: 0
+    navigateCompletions: "ctrl-p,ctrl-n"
+  whitespace:
+    ignoreWhitespaceOnCurrentLine: false
+  "vim-mode":
+    useSmartcaseForSearch: true
+  "tree-view": {}
+  linter: {}
+  react:
+    jsxTagStartPattern: "(?x)((^|=|return)\\s*<([^!/?](?!.+?(</.+?>))))"
+    jsxComplexAttributePattern: "(?x)\\{ [^}\"']* $|\\( [^)\"']* $"
+    decreaseIndentForNextLinePattern: "/>\\s*,?\\s*$"

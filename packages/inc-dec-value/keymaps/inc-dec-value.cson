@@ -1,0 +1,6 @@
+'.editor':
+  'alt-up': 'inc-dec-value:increment'
+  'alt-down': 'inc-dec-value:decrement'
+
+  'ctrl-alt-up': 'inc-dec-value:increment-by-decade'
+  'ctrl-alt-down': 'inc-dec-value:decrement-by-decade'
