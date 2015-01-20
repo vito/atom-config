@@ -1,5 +1,13 @@
 ## Changelog
 
+### 4.3.3
+
+- Update css selectors and keymappings with new atom API standards
+
+### 4.3.2
+
+- Fix for `Checkout new branch`
+
 ### 4.3.1
 
 - `Git Show` can be cancelled with escape
