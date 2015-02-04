@@ -1,7 +1,7 @@
 {
   "name": "git-tab-status",
   "main": "./lib/git-tab-status.coffee",
-  "version": "1.4.0",
+  "version": "1.5.3",
   "description": "Color code tabs based on git status.",
   "repository": {
     "type": "git",
@@ -20,12 +20,10 @@
     "url": "https://github.com/jakesankey/git-tab-status/issues"
   },
   "homepage": "https://github.com/jakesankey/git-tab-status",
-  "_id": "git-tab-status@1.4.0",
-  "dist": {
-    "shasum": "5ecfb02cd6169c9cc062e204b4706774c32a44c6"
-  },
-  "_resolved": "/private/var/folders/2m/6h1gtjq554gg3m6q4s6d6v_40000gn/T/d-115017-57446-mpmacs/package.tgz",
-  "_from": "/private/var/folders/2m/6h1gtjq554gg3m6q4s6d6v_40000gn/T/d-115017-57446-mpmacs/package.tgz",
+  "_id": "git-tab-status@1.5.3",
+  "_shasum": "58944e41b50823b987846eb89a8166a9d25a1d10",
+  "_resolved": "file:../d-115031-71530-1nu0nhf/package.tgz",
+  "_from": "../d-115031-71530-1nu0nhf/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [

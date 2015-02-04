@@ -1,7 +1,7 @@
 {
   "name": "atom-color-highlight",
   "main": "./lib/atom-color-highlight",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "private": true,
   "description": "Highlights color in files",
   "repository": {
@@ -18,7 +18,7 @@
   "dependencies": {
     "q": "1.x",
     "underscore-plus": "1.x",
-    "pigments": ">= 3.0.4",
+    "pigments": ">= 3.1.0",
     "mixto": "1.x",
     "event-kit": "0.7.x",
     "grim": "^1"
@@ -29,12 +29,10 @@
     "url": "https://github.com/abe33/atom-color-highlight/issues"
   },
   "homepage": "https://github.com/abe33/atom-color-highlight",
-  "_id": "atom-color-highlight@3.0.5",
-  "dist": {
-    "shasum": "d85b18ce3b0e98f83323da3c64eb21f822156465"
-  },
-  "_resolved": "/private/var/folders/2m/6h1gtjq554gg3m6q4s6d6v_40000gn/T/d-115017-57438-2dadfh/package.tgz",
-  "_from": "/private/var/folders/2m/6h1gtjq554gg3m6q4s6d6v_40000gn/T/d-115017-57438-2dadfh/package.tgz",
+  "_id": "atom-color-highlight@3.0.6",
+  "_shasum": "32df9b4f7e8426bc696e004d79458c26c05392e1",
+  "_resolved": "file:../d-11513-97295-16usff/package.tgz",
+  "_from": "../d-11513-97295-16usff/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -125,7 +123,7 @@
       },
       {
         "name": "pigments",
-        "version": "3.0.4",
+        "version": "3.1.0",
         "path": "node_modules/pigments/lib/index.js"
       },
       {
@@ -393,7 +391,7 @@
         "dependencies": {
           "q": "1.x",
           "underscore-plus": "1.x",
-          "pigments": ">= 3.0.4",
+          "pigments": ">= 3.1.0",
           "mixto": "1.x",
           "event-kit": "0.7.x",
           "grim": "^1"

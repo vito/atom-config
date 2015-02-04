@@ -35,10 +35,14 @@ class LinterInitializer
       default: false
     showErrorInline:
       type: 'boolean'
+      default: true
+    showInfoMessages:
+      type: 'boolean'
       default: false
+      description: "Display linter messages with error level “Info”."
     statusBar:
       type: 'string'
-      default: 'Show error of the selected line'
+      default: 'None'
       enum: ['None', 'Show all errors', 'Show error of the selected line', 'Show error if the cursor is in range']
     executionTimeout:
       type: 'integer'
@@ -63,13 +67,13 @@ class LinterInitializer
   activate: ->
     @setDefaultOldConfig()
     @linterViews = []
-    @linters = []
     @subscriptions = new CompositeDisposable
+    linterClasses = []
 
     for atomPackage in atom.packages.getLoadedPackages()
       if atomPackage.metadata['linter-package'] is true
         implemention = atomPackage.metadata['linter-implementation'] ? atomPackage.name
-        @linters.push(require "#{atomPackage.path}/lib/#{implemention}")
+        linterClasses.push(require "#{atomPackage.path}/lib/#{implemention}")
 
     @enabled = true
     @statusBarView = new StatusBarView()
@@ -81,7 +85,7 @@ class LinterInitializer
       return if editor.linterView?
 
       linterView = new LinterView(editor, @statusBarView, @statusBarSummaryView,
-                                  @inlineView, @linters)
+                                  @inlineView, linterClasses)
       @linterViews.push linterView
       @subscriptions.add linterView.onDidDestroy =>
         @linterViews = _.without @linterViews, linterView
@@ -93,6 +97,5 @@ class LinterInitializer
     @inlineView.remove()
     @statusBarView.remove()
     @statusBarSummaryView.remove()
-    l.destroy() for l in @linters
 
 module.exports = new LinterInitializer()

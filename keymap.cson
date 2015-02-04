@@ -26,3 +26,6 @@
 
 ".editor:not(.mini)":
   "ctrl-tab": "snippets:expand"
+
+"atom-text-editor.vim-mode.command-mode":
+  "enter": "core:save"

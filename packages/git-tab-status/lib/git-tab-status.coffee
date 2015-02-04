@@ -3,14 +3,15 @@ fs = require "fs"
 
 class GitTabStatus
     activate: ->
+        @_updateTabs();
         @_setupWatchConditions()
 
     deactivate: ->
-        clearInterval(@watcher)
+        clearInterval @watcher
         $(".tab [data-path]").removeClass "status-added status-modified status-ignored"
 
     _setupWatchConditions: ->
-        @watcher = setInterval @_updateTabs, 600
+        @watcher = setInterval @_updateTabs, 500
 
     _updateTabs: =>
         @_updateTabStylesForPath editor.getPath() for editor in @_getEditors()

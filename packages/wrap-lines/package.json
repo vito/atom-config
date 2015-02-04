@@ -23,11 +23,9 @@
   },
   "homepage": "https://github.com/geetduggal/wrap-lines",
   "_id": "wrap-lines@0.2.0",
-  "dist": {
-    "shasum": "f0bfb20a39f25cb9414f70f6b541172be061bf50"
-  },
-  "_resolved": "/private/var/folders/2m/6h1gtjq554gg3m6q4s6d6v_40000gn/T/d-114925-95992-nx4zfk/package.tgz",
-  "_from": "/private/var/folders/2m/6h1gtjq554gg3m6q4s6d6v_40000gn/T/d-114925-95992-nx4zfk/package.tgz",
+  "_shasum": "f0bfb20a39f25cb9414f70f6b541172be061bf50",
+  "_resolved": "file:../d-11511-85719-l7m9en/package.tgz",
+  "_from": "../d-11511-85719-l7m9en/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [],

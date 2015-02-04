@@ -34,6 +34,7 @@ The idea is to stop the linter plugins war, by providing a top level API for lin
 - [linter-rubocop](https://atom.io/packages/linter-rubocop), for Ruby and Ruby on Rails, using `rubocop`
 - [linter-ruby](https://atom.io/packages/linter-ruby), for Ruby, using `ruby -wc`
 - [linter-erb](https://atom.io/packages/linter-erb), for .erb files, using `erb -x`
+- [linter-haml](https://atom.io/packages/linter-haml), for .haml files, using `haml-lint`
 
 #### for PHP
 - [linter-php](https://atom.io/packages/linter-php), for PHP using `php -l`
@@ -44,6 +45,7 @@ The idea is to stop the linter plugins war, by providing a top level API for lin
 - [linter-pylint](https://atom.io/packages/linter-pylint), for Python, using `pylint`
 - [linter-pyflakes](https://atom.io/packages/linter-pyflakes), for Python, using `pyflakes`
 - [linter-pep8](https://atom.io/packages/linter-pep8), for Python, using `pep8`.
+- [linter-pep257](https://atom.io/packages/linter-pep257), for Python, using `pep257`
 - [linter-flake8](https://atom.io/packages/linter-flake8), for Python, using `flake8`
 - [linter-pylama](https://atom.io/packages/linter-pylama), for Python, using `pylama`
 
@@ -70,6 +72,7 @@ The idea is to stop the linter plugins war, by providing a top level API for lin
 
 #### for Lua
 - [linter-lua](https://atom.io/packages/linter-lua), for Lua, using `luac -p`
+- [linter-luacheck](https://atom.io/packages/linter-luacheck) for Lua, using `luacheck`
 
 #### for Clojure
 - [linter-clojure](https://atom.io/packages/linter-clojure), for Clojure, using `clojure`

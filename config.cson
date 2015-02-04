@@ -7,7 +7,7 @@
     userId: "52da33fcb06c65312f0480376129b839bdd3774a"
   editor:
     fontFamily: "Essential PragmataPro"
-    fontSize: 14
+    fontSize: 11
     showIndentGuide: true
     autoIndentOnPaste: false
     softWrap: true
@@ -18,8 +18,8 @@
     disabledPackages: [
       "file-icons"
       "autocomplete"
-      "vim-mode"
       "minimap"
+      "vim-mode"
     ]
     themes: [
       "spacegray-dark-ui"
@@ -37,6 +37,7 @@
   "autocomplete-plus":
     autoActivationDelay: 0
     navigateCompletions: "ctrl-p,ctrl-n"
+    enableBuiltinProvider: false
   whitespace:
     ignoreWhitespaceOnCurrentLine: false
   "vim-mode":
@@ -46,4 +47,5 @@
   react:
     jsxTagStartPattern: "(?x)((^|=|return)\\s*<([^!/?](?!.+?(</.+?>))))"
     jsxComplexAttributePattern: "(?x)\\{ [^}\"']* $|\\( [^)\"']* $"
-    decreaseIndentForNextLinePattern: "/>\\s*,?\\s*$"
+    decreaseIndentForNextLinePattern: "(?x) />\\s*(,|;)?\\s*$ | ^\\s*\\S+.*</[-_\\.A-Za-z0-9]+>$"
+  "wrap-lines": {}

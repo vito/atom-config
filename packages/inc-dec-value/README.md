@@ -4,6 +4,8 @@
 
 * * *
 
+**Note:** this package is *deprecated* in favor of [atom-string-looper](https://atom.io/packages/string-looper), which does the same thing.
+
 ## Usage
 
 Hit `alt+up` or `alt+down` on a word...
