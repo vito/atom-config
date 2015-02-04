@@ -19,11 +19,9 @@
   },
   "homepage": "https://github.com/vidius/atom-pain-split",
   "_id": "pain-split@1.2.0",
-  "dist": {
-    "shasum": "03761dd19e417f694d6ed28ff3327a8dd2f398be"
-  },
-  "_resolved": "/private/var/folders/4n/qs1rjbmd1c5gfb78m3_06j6r0000gn/T/d-115020-4416-9hnfal/package.tgz",
-  "_from": "/private/var/folders/4n/qs1rjbmd1c5gfb78m3_06j6r0000gn/T/d-115020-4416-9hnfal/package.tgz",
+  "_shasum": "03761dd19e417f694d6ed28ff3327a8dd2f398be",
+  "_resolved": "file:../d-11514-5628-1asu3xq/package.tgz",
+  "_from": "../d-11514-5628-1asu3xq/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [],
