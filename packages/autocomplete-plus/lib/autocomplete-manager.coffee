@@ -1,4 +1,4 @@
-{Range, TextEditor, CompositeDisposable, Disposable, Emitter}  = require('atom')
+{Range, TextEditor, CompositeDisposable, Disposable}  = require('atom')
 _ = require('underscore-plus')
 minimatch = require('minimatch')
 path = require('path')
@@ -11,6 +11,8 @@ class AutocompleteManager
   autosaveEnabled: false
   backspaceTriggersAutocomplete: true
   buffer: null
+  compositionInProgress: false
+  disposed: false
   editor: null
   editorSubscriptions: null
   editorView: null
@@ -24,22 +26,19 @@ class AutocompleteManager
   constructor: ->
     @subscriptions = new CompositeDisposable
     @providerManager = new ProviderManager
-    @subscriptions.add(@providerManager)
-    @emitter = new Emitter
-
-    # Register Suggestion List Model and View
-    @subscriptions.add(atom.views.addViewProvider(SuggestionList, (model) ->
-      new SuggestionListElement().initialize(model)
-    ))
     @suggestionList = new SuggestionList
+
+    @subscriptions.add(@providerManager)
+    @subscriptions.add atom.views.addViewProvider SuggestionList, (model) ->
+      new SuggestionListElement().initialize(model)
 
     @handleEvents()
     @handleCommands()
+    @subscriptions.add(@suggestionList) # We're adding this last so it is disposed after events
     @ready = true
 
   updateCurrentEditor: (currentPaneItem) =>
-    return unless currentPaneItem?
-    return if currentPaneItem is @editor
+    return if not currentPaneItem? or currentPaneItem is @editor
 
     @editorSubscriptions?.dispose()
     @editorSubscriptions = null
@@ -61,6 +60,16 @@ class AutocompleteManager
     # Subscribe to buffer events:
     @editorSubscriptions.add(@buffer.onDidSave(@bufferSaved))
     @editorSubscriptions.add(@buffer.onDidChange(@bufferChanged))
+
+    # Watch IME Events To Allow IME To Function Without The Suggestion List Showing
+    compositionStart = => @compositionInProgress = true
+    compositionEnd = => @compositionInProgress = false
+
+    @editorView.addEventListener('compositionstart', compositionStart)
+    @editorView.addEventListener('compositionend', compositionEnd)
+    @editorSubscriptions.add new Disposable ->
+      @editorView?.removeEventListener('compositionstart', compositionStart)
+      @editorView?.removeEventListener('compositionend', compositionEnd)
 
     # Subscribe to editor events:
     # Close the overlay when the cursor moved without changing any text
@@ -92,9 +101,8 @@ class AutocompleteManager
   # Private: Finds suggestions for the current prefix, sets the list items,
   # positions the overlay and shows it
   findSuggestions: =>
-    return unless @providerManager?
-    return unless @editor?
-    return unless @buffer?
+    return if @disposed
+    return unless @providerManager? and @editor? and @buffer?
     return if @isCurrentFileBlackListed()
     cursor = @editor.getLastCursor()
     return unless cursor?
@@ -117,7 +125,7 @@ class AutocompleteManager
 
   getSuggestionsFromProviders: (options) =>
     providers = @providerManager.providersForScopeChain(options.scopeChain)
-    providerPromises = providers?.map (provider) -> provider?.requestHandler(options)
+    providerPromises = providers?.map((provider) -> provider?.requestHandler(options))
     return unless providerPromises?.length
     @currentSuggestionsPromise = suggestionsPromise = Promise.all(providerPromises)
       .then(@mergeSuggestionsFromProviders)
@@ -139,8 +147,6 @@ class AutocompleteManager
     else
       @hideSuggestionList()
 
-    @emitter.emit('did-autocomplete', {options, suggestions})
-
   prefixForCursor: (cursor) =>
     return '' unless @buffer? and cursor?
     start = cursor.getBeginningOfCurrentWordBufferPosition()
@@ -152,29 +158,30 @@ class AutocompleteManager
   #
   # match - An {Object} representing the confirmed suggestion
   confirm: (match) =>
-    return unless @editor? and match?
+    return unless @editor? and match? and not @disposed
 
-    match.onWillConfirm() if match.onWillConfirm?
+    match.onWillConfirm?()
 
     @editor.getSelections()?.forEach((selection) -> selection?.clear())
     @hideSuggestionList()
 
     @replaceTextWithMatch(match)
 
-    if match.isSnippet? and match.isSnippet
-      setTimeout(=>
+    if match.isSnippet
+      setTimeout =>
         atom.commands.dispatch(atom.views.getView(@editor), 'snippets:expand')
-      , 1)
+      , 1
 
-    match.onDidConfirm() if match.onDidConfirm?
+    match.onDidConfirm?()
 
   showSuggestionList: (suggestions) ->
+    return if @disposed
     @suggestionList.changeItems(suggestions)
     @suggestionList.show(@editor)
 
   hideSuggestionList: =>
-    # TODO: Should we *always* focus the editor? Probably not...
-    @suggestionList?.hideAndFocusOn(@editorView)
+    return if @disposed
+    @suggestionList.hide()
     @shouldDisplaySuggestions = false
 
   requestHideSuggestionList: (command) ->
@@ -191,13 +198,10 @@ class AutocompleteManager
     return unless @editor?
     newSelectedBufferRanges = []
 
-    buffer = @editor.getBuffer()
-    return unless buffer?
-
     selections = @editor.getSelections()
     return unless selections?
     @editor.transact =>
-      if match.prefix? and match.prefix.length > 0
+      if match.prefix?.length > 0
         @editor.selectLeft(match.prefix.length)
         @editor.delete()
 
@@ -209,7 +213,7 @@ class AutocompleteManager
   isCurrentFileBlackListed: =>
     blacklist = atom.config.get('autocomplete-plus.fileBlacklist')?.map((s) -> s.trim())
     return false unless blacklist? and blacklist.length
-    fileName = path.basename(@editor.getBuffer().getPath())
+    fileName = path.basename(@buffer.getPath())
     for blacklistGlob in blacklist
       return true if minimatch(fileName, blacklistGlob)
 
@@ -250,6 +254,8 @@ class AutocompleteManager
   #
   # event - The change {Event}
   bufferChanged: ({newText, oldText}) =>
+    return if @disposed
+    return @hideSuggestionList() if @compositionInProgress
     autoActivationEnabled = atom.config.get('autocomplete-plus.enableAutoActivation')
     wouldAutoActivate = newText.trim().length is 1 or ((@backspaceTriggersAutocomplete or @suggestionList.isActive()) and oldText.trim().length is 1)
 
@@ -260,19 +266,14 @@ class AutocompleteManager
       @cancelNewSuggestionsRequest()
       @hideSuggestionList()
 
-  onDidAutocomplete: (callback) =>
-    @emitter.on('did-autocomplete', callback)
-
   # Public: Clean up, stop listening to events
   dispose: =>
+    @hideSuggestionList()
+    @disposed = true
     @ready = false
     @editorSubscriptions?.dispose()
     @editorSubscriptions = null
-    @suggestionList?.destroy()
-    @suggestionList = null
     @subscriptions?.dispose()
     @subscriptions = null
+    @suggestionList = null
     @providerManager = null
-    @emitter?.emit('did-dispose')
-    @emitter?.dispose()
-    @emitter = null

@@ -1,7 +1,7 @@
 {
   "name": "git-plus",
   "main": "./lib/git-plus",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "description": "Do git things without the terminal",
   "activationEvents": [
     "git-plus:menu",
@@ -61,10 +61,10 @@
     "url": "https://github.com/akonwi/git-plus/issues"
   },
   "homepage": "https://github.com/akonwi/git-plus",
-  "_id": "git-plus@4.4.0",
-  "_shasum": "738b184d6d4dab2ee2576daf5c9787e1d467c740",
-  "_resolved": "file:../d-11514-5547-1aai60q/package.tgz",
-  "_from": "../d-11514-5547-1aai60q/package.tgz",
+  "_id": "git-plus@4.4.1",
+  "_shasum": "a0e256c26844b0b02f650a6d6372ec37e42a8728",
+  "_resolved": "file:../d-11517-11104-19hl63s/package.tgz",
+  "_from": "../d-11517-11104-19hl63s/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -145,7 +145,7 @@
       },
       {
         "name": "fs-plus",
-        "version": "2.4.0",
+        "version": "2.5.0",
         "path": "node_modules/fs-plus/lib/fs-plus.js"
       },
       {

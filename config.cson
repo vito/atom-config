@@ -37,7 +37,6 @@
   "autocomplete-plus":
     autoActivationDelay: 0
     navigateCompletions: "ctrl-p,ctrl-n"
-    enableBuiltinProvider: false
   whitespace:
     ignoreWhitespaceOnCurrentLine: false
   "vim-mode":

@@ -93,11 +93,10 @@ class SuggestionList
     @addKeyboardInteraction()
     @active = true
 
-  hideAndFocusOn: (refocusTarget) =>
+  hide: =>
     return unless @active
     @destroyOverlay()
     @removeKeyboardInteraction()
-    refocusTarget?.focus?()
     @active = false
 
   destroyOverlay: =>
@@ -111,10 +110,10 @@ class SuggestionList
     @emitter.on('did-change-items', fn)
 
   # Public: Clean up, stop listening to events
-  destroy: ->
+  dispose: ->
     @subscriptions.dispose()
-    @emitter.emit('did-destroy')
+    @emitter.emit('did-dispose')
     @emitter.dispose()
 
-  onDidDestroy: (fn) ->
-    @emitter.on('did-destroy', fn)
+  onDidDispose: (fn) ->
+    @emitter.on('did-dispose', fn)
