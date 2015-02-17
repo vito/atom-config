@@ -1,7 +1,7 @@
 {
   "name": "pain-split",
   "main": "./lib/pain-split",
-  "version": "1.2.0",
+  "version": "1.3.1",
   "description": "Adds additional pane-splitting commands.",
   "repository": {
     "type": "git",
@@ -18,10 +18,10 @@
     "url": "https://github.com/vidius/atom-pain-split/issues"
   },
   "homepage": "https://github.com/vidius/atom-pain-split",
-  "_id": "pain-split@1.2.0",
-  "_shasum": "03761dd19e417f694d6ed28ff3327a8dd2f398be",
-  "_resolved": "file:../d-11514-5628-1asu3xq/package.tgz",
-  "_from": "../d-11514-5628-1asu3xq/package.tgz",
+  "_id": "pain-split@1.3.1",
+  "_shasum": "a3525878de67fe834997258ecf45ba2be7e5edbf",
+  "_resolved": "file:../d-115117-88995-1put4wy/package.tgz",
+  "_from": "../d-115117-88995-1put4wy/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [],

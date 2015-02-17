@@ -1,7 +1,25 @@
 {Subscriber} = require 'emissary'
+contentCheckRegex = null
 
 class AtomReact
   Subscriber.includeInto(this)
+
+  config:
+    detectReactFilePattern:
+      type: 'string'
+      default: '/require\\([\'"]react(?:-native)?[\'"]\\)/'
+    jsxTagStartPattern:
+      type: 'string'
+      default: '(?x)((^|=|return)\\s*<([^!/?](?!.+?(</.+?>))))'
+    jsxComplexAttributePattern:
+      type: 'string'
+      default: '(?x)\\{ [^}"\']* $|\\( [^)"\']* $'
+    decreaseIndentForNextLinePattern:
+      type: 'string'
+      default: '(?x)
+      />\\s*(,|;)?\\s*$
+      | ^\\s*\\S+.*</[-_\\.A-Za-z0-9]+>$'
+
   constructor: ->
   patchEditorLangModeAutoDecreaseIndentForBufferRow: (editor) ->
     self = this
@@ -73,12 +91,11 @@ class AtomReact
     @patchEditorLangModeSuggestedIndentForBufferRow(editor)?.jsxPatch = true
     @patchEditorLangModeAutoDecreaseIndentForBufferRow(editor)?.jsxPatch = true
 
-  isJSX: (text) ->
-    docblock = require 'jstransform/src/docblock'
-    doc = docblock.parse text;
-    for b in doc
-      return true if b[0] == 'jsx'
-    false
+  isReact: (text) ->
+    if not contentCheckRegex?
+      match = (atom.config.get('react.detectReactFilePattern') || '/require\\([\'"]react(?:-native)?[\'"]\\)/').match(new RegExp('^/(.*?)/([gimy]*)$'));
+      contentCheckRegex = new RegExp(match[1], match[2])
+    return text.match(contentCheckRegex)?
 
   isReactEnabledForEditor: (editor) ->
     return editor? && editor.getGrammar().scopeName == "source.js.jsx"
@@ -88,9 +105,9 @@ class AtomReact
 
     path = require 'path'
 
-    # Check if file extension is .jsx or the file has the old JSX notation
+    # Check if file extension is .jsx or the file requires React
     extName = path.extname(editor.getPath())
-    if extName is ".jsx" or (extName is ".js" and @isJSX(editor.getText()))
+    if extName is ".jsx" or (extName is ".js" and @isReact(editor.getText()))
       jsxGrammar = atom.grammars.grammarsByScopeName["source.js.jsx"]
       editor.setGrammar jsxGrammar if jsxGrammar
 
@@ -171,8 +188,10 @@ class AtomReact
     @disposableReformat.dispose()
     @disposableHTMLTOJSX.dispose()
     @disposableProcessEditor.dispose()
+    @disposableConfigListener.dispose()
 
   activate: ->
+
     jsxTagStartPattern = '(?x)((^|=|return)\\s*<([^!/?](?!.+?(</.+?>))))'
     jsxComplexAttributePattern = '(?x)\\{ [^}"\']* $|\\( [^)"\']* $'
     decreaseIndentForNextLinePattern = '(?x)
@@ -184,6 +203,9 @@ class AtomReact
     atom.config.set("react.decreaseIndentForNextLinePattern", decreaseIndentForNextLinePattern)
 
     # Bind events
+    @disposableConfigListener = atom.config.observe 'react.detectReactFilePattern', (newValue) ->
+      contentCheckRegex = null
+
     @disposableReformat = atom.commands.add 'atom-workspace', 'react:reformat-JSX', => @onReformat()
     @disposableHTMLTOJSX = atom.commands.add 'atom-workspace', 'react:HTML-to-JSX', => @onHTMLToJSX()
     @disposableProcessEditor = atom.workspace.observeTextEditors @processEditor.bind(this)
