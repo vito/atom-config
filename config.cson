@@ -7,13 +7,12 @@
     userId: "52da33fcb06c65312f0480376129b839bdd3774a"
   editor:
     fontFamily: "Essential PragmataPro"
-    fontSize: 11
     showIndentGuide: true
-    autoIndentOnPaste: false
     softWrap: true
     scrollSensitivity: 20
     scrollPastEnd: true
     invisibles: {}
+    autoIndentOnPaste: false
   core:
     disabledPackages: [
       "file-icons"
@@ -43,8 +42,5 @@
     useSmartcaseForSearch: true
   "tree-view": {}
   linter: {}
-  react:
-    jsxTagStartPattern: "(?x)((^|=|return)\\s*<([^!/?](?!.+?(</.+?>))))"
-    jsxComplexAttributePattern: "(?x)\\{ [^}\"']* $|\\( [^)\"']* $"
-    decreaseIndentForNextLinePattern: "(?x) />\\s*(,|;)?\\s*$ | ^\\s*\\S+.*</[-_\\.A-Za-z0-9]+>$"
+  react: {}
   "wrap-lines": {}

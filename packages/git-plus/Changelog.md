@@ -1,5 +1,18 @@
 ## Changelog
 
+### 4.4.8
+
+- Proper fix for GitRepository trying to refresh on window focus by setting `refreshOnWindowFocus` to false
+
+### 4.4.7
+
+- Update style selectors for diff highlighting
+
+### 4.4.6
+
+- Try to keep only one instance of GitRepository floating around by using either
+`atom.project.getRepo` or calling `::destroy` on an opened instance
+
 ### 4.4.2
 
 - Gracefully handle `Git not found error` thanks to @TrangPham.

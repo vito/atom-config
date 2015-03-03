@@ -1,7 +1,7 @@
 {
   "name": "git-plus",
   "main": "./lib/git-plus",
-  "version": "4.4.2",
+  "version": "4.4.8",
   "description": "Do git things without the terminal",
   "activationEvents": [
     "git-plus:menu",
@@ -61,10 +61,10 @@
     "url": "https://github.com/akonwi/git-plus/issues"
   },
   "homepage": "https://github.com/akonwi/git-plus",
-  "_id": "git-plus@4.4.2",
-  "_shasum": "bd998c5177dc973b098341b823315d431e7fbe9f",
-  "_resolved": "file:../d-115117-88971-6mc3zn/package.tgz",
-  "_from": "../d-115117-88971-6mc3zn/package.tgz",
+  "_id": "git-plus@4.4.8",
+  "_shasum": "a97a2b4e18a0ead40c2a00b76c4613ba7a97f560",
+  "_resolved": "file:../d-115120-36360-ub55qw/package.tgz",
+  "_from": "../d-115120-36360-ub55qw/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -80,7 +80,7 @@
       },
       {
         "name": "grim",
-        "version": "1.1.2",
+        "version": "1.2.0",
         "path": "node_modules/atom-space-pen-views/node_modules/grim/lib/grim.js"
       },
       {
@@ -901,8 +901,7 @@
         ],
         "dependencies": {
           "coffeestack": "^1",
-          "emissary": "^1.2.0",
-          "underscore-plus": "^1.0.0"
+          "emissary": "^1.2.0"
         }
       },
       {

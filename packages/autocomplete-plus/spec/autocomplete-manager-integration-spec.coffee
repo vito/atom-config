@@ -2,8 +2,10 @@
 _ = require('underscore-plus')
 {KeymapManager} = require('atom')
 
+NodeTypeText = 3
+
 describe 'Autocomplete Manager', ->
-  [completionDelay, editorView, editor, mainModule, autocompleteManager, mainModule] = []
+  [workspaceElement, completionDelay, editorView, editor, mainModule, autocompleteManager, mainModule] = []
 
   beforeEach ->
     runs ->
@@ -19,11 +21,74 @@ describe 'Autocomplete Manager', ->
       workspaceElement = atom.views.getView(atom.workspace)
       jasmine.attachToDOM(workspaceElement)
 
-  describe 'when opening a file without a path and using strict matching', ->
-    beforeEach ->
-      runs ->
-        atom.config.set('autocomplete-plus.strictMatching', true)
+      atom.config.set('autocomplete-plus.maxVisibleSuggestions', 10)
 
+  describe "when an external provider is registered", ->
+    class SpecialProvider
+      id: 'my-some-provider'
+      selector: '*'
+      requestHandler: ({prefix}) ->
+        list = ['a', 'ab', 'abc', 'abcd', 'abcde']
+        ({word, prefix} for word in list)
+
+    [provider] = []
+
+    beforeEach ->
+      waitsForPromise ->
+        Promise.all [
+          atom.workspace.open('').then (e) ->
+            editor = e
+            editorView = atom.views.getView(editor)
+          atom.packages.activatePackage('autocomplete-plus').then (a) ->
+            mainModule = a.mainModule
+        ]
+
+      runs ->
+        provider = new SpecialProvider
+        mainModule.consumeProvider({provider})
+
+    describe "when number of suggestions > maxVisibleSuggestions", ->
+      beforeEach ->
+        atom.config.set('autocomplete-plus.maxVisibleSuggestions', 2)
+
+      it "only shows the maxVisibleSuggestions in the suggestion popup", ->
+        triggerAutocompletion(editor, true, 'a')
+
+        runs ->
+          expect(editorView.querySelector('.autocomplete-plus')).toExist()
+          expect(editorView.querySelectorAll('.autocomplete-plus li')).toHaveLength 5
+          expect(editorView.querySelector('.autocomplete-plus .list-group').style['max-height']).toBe("#{2 * 25}px")
+
+    describe "when match.snippet is used", ->
+      beforeEach ->
+        spyOn(provider, 'requestHandler').andCallFake ({prefix}) ->
+          list = ['method(${1:something})']
+          ({snippet, prefix} for snippet in list)
+
+      describe "when the snippets package is enabled", ->
+        beforeEach ->
+          waitsForPromise ->
+            atom.packages.activatePackage('snippets')
+
+        it "displays the snippet without the `${1:}` in its own class", ->
+          triggerAutocompletion(editor, true, 'm')
+
+          runs ->
+            wordElement = editorView.querySelector('.autocomplete-plus span.word')
+            expect(wordElement.textContent).toBe 'method(something)'
+            expect(wordElement.querySelector('.snippet-completion').textContent).toBe 'something'
+
+        it "accepts the snippet when autocomplete-plus:confirm is triggered", ->
+          triggerAutocompletion(editor, true, 'm')
+
+          runs ->
+            suggestionListView = editorView.querySelector('.autocomplete-plus autocomplete-suggestion-list')
+            atom.commands.dispatch(suggestionListView, 'autocomplete-plus:confirm')
+            expect(editorView.querySelector('.autocomplete-plus')).not.toExist()
+            expect(editor.getSelectedText()).toBe 'something'
+
+  describe 'when opening a file without a path', ->
+    beforeEach ->
       waitsForPromise ->
         atom.workspace.open('').then (e) ->
           editor = e
@@ -31,10 +96,6 @@ describe 'Autocomplete Manager', ->
 
       waitsForPromise ->
         atom.packages.activatePackage('language-text')
-
-      runs ->
-        workspaceElement = atom.views.getView(atom.workspace)
-        jasmine.attachToDOM(workspaceElement)
 
       # Activate the package
       waitsForPromise -> atom.packages.activatePackage('autocomplete-plus').then (a) ->
@@ -48,22 +109,23 @@ describe 'Autocomplete Manager', ->
         spyOn(autocompleteManager, 'findSuggestions').andCallThrough()
         spyOn(autocompleteManager, 'displaySuggestions').andCallThrough()
 
-    afterEach ->
-      jasmine.unspy(autocompleteManager, 'findSuggestions')
-      jasmine.unspy(autocompleteManager, 'displaySuggestions')
+    describe "when strict matching is used", ->
+      beforeEach ->
+        atom.config.set('autocomplete-plus.strictMatching', true)
 
-    it 'does not cause issues when typing', ->
-      runs ->
-        editor.moveToBottom()
-        editor.insertText('h')
-        editor.insertText('e')
-        editor.insertText('l')
-        editor.insertText('l')
-        editor.insertText('o')
-        advanceClock(completionDelay + 1000)
+      it 'using strict matching does not cause issues when typing', ->
+        # FIXME: WTF does this test even test?
+        runs ->
+          editor.moveToBottom()
+          editor.insertText('h')
+          editor.insertText('e')
+          editor.insertText('l')
+          editor.insertText('l')
+          editor.insertText('o')
+          advanceClock(completionDelay + 1000)
 
-      waitsFor ->
-        autocompleteManager.findSuggestions.calls.length is 1
+        waitsFor ->
+          autocompleteManager.findSuggestions.calls.length is 1
 
   describe 'when opening a javascript file', ->
     beforeEach ->
@@ -105,7 +167,7 @@ describe 'Autocomplete Manager', ->
 
           # Check suggestions
           suggestions = ['function', 'if', 'left', 'shift']
-          [].forEach.call editorView.querySelectorAll('.autocomplete-plus li span.word'), (item, index) ->
+          for item, index in editorView.querySelectorAll('.autocomplete-plus li span.word')
             expect(item.innerText).toEqual(suggestions[index])
 
       it 'should not show the suggestion list when no suggestions are found', ->
@@ -280,10 +342,10 @@ describe 'Autocomplete Manager', ->
           word = editorView.querySelector('.autocomplete-plus li span.word')
           expect(word.childNodes).toHaveLength 5
           expect(word.childNodes[0]).toHaveClass 'character-match'
-          expect(word.childNodes[1]).not.toHaveClass 'character-match'
+          expect(word.childNodes[1].nodeType).toBe NodeTypeText
           expect(word.childNodes[2]).toHaveClass 'character-match'
           expect(word.childNodes[3]).toHaveClass 'character-match'
-          expect(word.childNodes[4]).not.toHaveClass 'character-match'
+          expect(word.childNodes[4].nodeType).toBe NodeTypeText
 
       it 'highlights repeated characters in the prefix', ->
         expect(editorView.querySelector('.autocomplete-plus')).not.toExist()
@@ -299,12 +361,12 @@ describe 'Autocomplete Manager', ->
           expect(editorView.querySelector('.autocomplete-plus')).toExist()
 
           word = editorView.querySelector('.autocomplete-plus li span.word')
-          expect(word.childNodes).toHaveLength 5
+          expect(word.childNodes).toHaveLength 4
           expect(word.childNodes[0]).toHaveClass 'character-match'
           expect(word.childNodes[1]).toHaveClass 'character-match'
           expect(word.childNodes[2]).toHaveClass 'character-match'
-          expect(word.childNodes[3]).not.toHaveClass 'character-match'
-          expect(word.childNodes[4]).not.toHaveClass 'character-match'
+          expect(word.childNodes[3].nodeType).toBe 3 # text
+          expect(word.childNodes[3].textContent).toBe 'ly'
 
     describe 'accepting suggestions', ->
       it 'hides the suggestions list when a suggestion is confirmed', ->

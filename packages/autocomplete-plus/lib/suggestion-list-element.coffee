@@ -2,12 +2,12 @@
 _ = require('underscore-plus')
 
 class SuggestionListElement extends HTMLElement
-  maxItems: 10
+  maxItems: 1000
+  snippetRegex: /\$\{[0-9]+:([^}]+)\}/g
 
   createdCallback: ->
     @subscriptions = new CompositeDisposable
     @classList.add('popover-list', 'select-list', 'autocomplete-suggestion-list')
-    @subscriptions.add(atom.config.observe('autocomplete-plus.maxSuggestions', => @maxItems = atom.config.get('autocomplete-plus.maxSuggestions')))
     @registerMouseHandling()
 
   attachedCallback: ->
@@ -15,6 +15,7 @@ class SuggestionListElement extends HTMLElement
     @parentElement.classList.add('autocomplete-plus')
     @addActiveClassToEditor()
     @renderList() unless @ol
+    @calculateMaxListHeight()
     @itemsChanged()
 
   detachedCallback: ->
@@ -96,9 +97,18 @@ class SuggestionListElement extends HTMLElement
     @appendChild(@ol)
     @ol.className = 'list-group'
 
+  calculateMaxListHeight: ->
+    maxVisibleItems = atom.config.get('autocomplete-plus.maxVisibleSuggestions')
+    li = document.createElement('li')
+    li.textContent = 'test'
+    @ol.appendChild(li)
+    itemHeight = li.offsetHeight
+    @ol.style['max-height'] = "#{maxVisibleItems * itemHeight}px"
+    li.remove()
+
   renderItems: ->
     items = @visibleItems() or []
-    items.forEach ({word, label, renderLabelAsHtml, className, prefix}, index) =>
+    items.forEach ({snippet, word, label, renderLabelAsHtml, className, prefix}, index) =>
       li = @ol.childNodes[index]
       unless li
         li = document.createElement('li')
@@ -116,15 +126,25 @@ class SuggestionListElement extends HTMLElement
         li.appendChild(wordSpan)
         wordSpan.className = 'word'
 
-      wordSpan.innerHTML = ("<span>#{ch}</span>" for ch in word).join('')
+      replacement = word
+      if _.isString(snippet)
+        replacement = snippet.replace @snippetRegex, (match, snippetText) ->
+          "<span class=\"snippet-completion\">#{snippetText}</span>"
 
       # highlight the prefix
+      displayHtml = ''
       wordIndex = 0
+      lastWordIndex = 0
       for ch, i in prefix
-        while wordIndex < word.length and word[wordIndex].toLowerCase() isnt ch.toLowerCase()
+        while wordIndex < replacement.length and replacement[wordIndex].toLowerCase() isnt ch.toLowerCase()
           wordIndex += 1
-        wordSpan.childNodes[wordIndex]?.classList.add('character-match')
+        preChar = replacement.substring(lastWordIndex, wordIndex)
+        highlightedChar = "<span class=\"character-match\">#{replacement[wordIndex]}</span>"
+        displayHtml = "#{displayHtml}#{preChar}#{highlightedChar}"
         wordIndex += 1
+        lastWordIndex = wordIndex
+      displayHtml += replacement.substring(lastWordIndex)
+      wordSpan.innerHTML = displayHtml
 
       labelSpan = li.childNodes[1]
       if label
