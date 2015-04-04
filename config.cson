@@ -20,10 +20,6 @@
       "minimap"
       "vim-mode"
     ]
-    themes: [
-      "spacegray-dark-ui"
-      "spacegray-dark-syntax"
-    ]
   "go-plus":
     lintOnSave: false
     vetOnSave: false
