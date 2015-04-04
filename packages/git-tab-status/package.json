@@ -1,11 +1,14 @@
 {
   "name": "git-tab-status",
   "main": "./lib/git-tab-status.coffee",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "description": "Color code tabs based on git status.",
   "repository": {
     "type": "git",
     "url": "https://github.com/jakesankey/git-tab-status"
+  },
+  "scripts": {
+    "test": "apm test"
   },
   "license": "MIT",
   "engines": {
@@ -20,10 +23,10 @@
     "url": "https://github.com/jakesankey/git-tab-status/issues"
   },
   "homepage": "https://github.com/jakesankey/git-tab-status",
-  "_id": "git-tab-status@1.5.3",
-  "_shasum": "58944e41b50823b987846eb89a8166a9d25a1d10",
-  "_resolved": "file:../d-115031-71530-1nu0nhf/package.tgz",
-  "_from": "../d-115031-71530-1nu0nhf/package.tgz",
+  "_id": "git-tab-status@1.6.0",
+  "_shasum": "73bacf6780beab00e808236557c587fab1520173",
+  "_resolved": "file:../d-11534-4650-8ipgz4/package.tgz",
+  "_from": "../d-11534-4650-8ipgz4/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [

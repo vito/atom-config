@@ -75,21 +75,15 @@ class GoExecutable
         executables.push(path.normalize(path.join('C:', 'tools', 'go', 'bin', 'go.exe')))
 
     # De-duplicate entries
-    executables = _.uniq(executables)
-    async.filter executables, fs.exists, (results) =>
-      executables = results
-      async.map executables, @introspect, (err, results) =>
-        console.log('Error mapping go: ' + err) if err?
-        @gos = results
-        @emit('detect-complete', @current())
+    executables = _.chain(executables).uniq().map((e) -> path.resolve(path.normalize(e))).filter((e) -> fs.existsSync(e)).reject((e) -> fs.lstatSync(e)?.isDirectory()).value()
+    async.map executables, @introspect, (err, results) =>
+      console.log('Error mapping go: ' + err) if err?
+      @gos = _.compact(results)
+      @gos = _.filter(@gos, (go) -> go?.executable?.length > 0)
+      @emit('detect-complete', @current())
 
   introspect: (executable, outercallback) =>
-    absoluteExecutable = path.resolve(executable)
-    if fs.lstatSync(absoluteExecutable)?.isDirectory()
-      outercallback(null)
-      return
-
-    go = new Go(absoluteExecutable, @pathexpander)
+    go = new Go(executable, @pathexpander)
     async.series([
       (callback) =>
         done = (exitcode, stdout, stderr) =>
@@ -104,9 +98,9 @@ class GoExecutable
 
           callback(null)
         try
-          @executor.exec(absoluteExecutable, false, @env, done, ['version'])
+          @executor.exec(executable, false, @env, done, ['version'])
         catch error
-          console.log('go [' + absoluteExecutable + '] is not a valid go')
+          console.log('go [' + executable + '] is not a valid go')
           go = null
       (callback) =>
         done = (exitcode, stdout, stderr) ->
@@ -142,9 +136,9 @@ class GoExecutable
           console.log('Error detail: ' + stderr) if stderr? and stderr isnt ''
           callback(null)
         try
-          @executor.exec(absoluteExecutable, false, @env, done, ['env']) unless go is null
+          @executor.exec(executable, false, @env, done, ['env']) unless go is null
         catch error
-          console.log('go [' + absoluteExecutable + '] is not a valid go')
+          console.log('go [' + executable + '] is not a valid go')
     ], (err, results) ->
       outercallback(err, go)
     )
@@ -219,7 +213,8 @@ class GoExecutable
     )
 
   current: =>
+    return false unless @gos?.length > 0
     return @gos[0] if _.size(@gos) is 1
     for go in @gos
-      return go if go?.executable is @currentgo
+      return go if go?.executable is @currentgo and @currentgo isnt ''
     return @gos[0]

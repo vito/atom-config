@@ -18,21 +18,30 @@ class Insert extends Operator
   execute: ->
     if @typingCompleted
       return unless @typedText? and @typedText.length > 0
-      @editor.transact =>
-        @editor.getBuffer().insert(
-          @editor.getCursorBufferPosition(),
-          @typedText,
-          normalizeLineEndings: true
-        )
+      @editor.insertText(@typedText, normalizeLineEndings: true)
+      for cursor in @editor.getCursors()
+        cursor.moveLeft() unless cursor.isAtBeginningOfLine()
     else
       @vimState.activateInsertMode()
       @typingCompleted = true
+    return
 
   inputOperator: -> true
 
 class InsertAfter extends Insert
   execute: ->
     @editor.moveRight() unless @editor.getLastCursor().isAtEndOfLine()
+    super
+
+class InsertAfterEndOfLine extends Insert
+  execute: ->
+    @editor.moveToEndOfLine()
+    super
+
+class InsertAtBeginningOfLine extends Insert
+  execute: ->
+    @editor.moveToBeginningOfLine()
+    @editor.moveToFirstCharacterOfLine()
     super
 
 class InsertAboveWithNewline extends Insert
@@ -47,7 +56,7 @@ class InsertAboveWithNewline extends Insert
       @typedText = @typedText.trimLeft()
       return super
 
-    @vimState.activateInsertMode(transactionStarted = true)
+    @vimState.activateInsertMode()
     @typingCompleted = true
 
 class InsertBelowWithNewline extends Insert
@@ -62,7 +71,7 @@ class InsertBelowWithNewline extends Insert
       @typedText = @typedText.trimLeft()
       return super
 
-    @vimState.activateInsertMode(transactionStarted = true)
+    @vimState.activateInsertMode()
     @typingCompleted = true
 
 #
@@ -71,8 +80,9 @@ class InsertBelowWithNewline extends Insert
 class Change extends Insert
   standalone: false
   register: null
+
   constructor: (@editor, @vimState, {@selectOptions}={}) ->
-      @register = settings.defaultRegister()
+    @register = settings.defaultRegister()
 
   # Public: Changes the text selected by the given motion.
   #
@@ -94,13 +104,15 @@ class Change extends Insert
 
     return super if @typingCompleted
 
-    @vimState.activateInsertMode(transactionStarted = true)
+    @vimState.activateInsertMode()
     @typingCompleted = true
 
 class Substitute extends Insert
   register: null
+
   constructor: (@editor, @vimState, {@selectOptions}={}) ->
-      @register = settings.defaultRegister()
+    @register = settings.defaultRegister()
+
   execute: (count=1) ->
     @vimState.setInsertionCheckpoint() unless @typingCompleted
     _.times count, =>
@@ -113,13 +125,15 @@ class Substitute extends Insert
       @typedText = @typedText.trimLeft()
       return super
 
-    @vimState.activateInsertMode(transactionStarated = true)
+    @vimState.activateInsertMode()
     @typingCompleted = true
 
 class SubstituteLine extends Insert
   register: null
+
   constructor: (@editor, @vimState, {@selectOptions}={}) ->
-      @register = settings.defaultRegister()
+    @register = settings.defaultRegister()
+
   execute: (count=1) ->
     @vimState.setInsertionCheckpoint() unless @typingCompleted
     @editor.moveToBeginningOfLine()
@@ -136,35 +150,44 @@ class SubstituteLine extends Insert
       @typedText = @typedText.trimLeft()
       return super
 
-    @vimState.activateInsertMode(transactionStarated = true)
+    @vimState.activateInsertMode()
     @typingCompleted = true
 
 # Takes a transaction and turns it into a string of what was typed.
 # This class is an implementation detail of Insert
 class TransactionBundler
   constructor: (@transaction) ->
+    @position = null
+    @content = ""
 
   buildInsertText: ->
-    return "" unless @transaction.patches
-    chars = []
-    for patch in @transaction.patches
-      switch
-        when @isTypedChar(patch) then chars.push(@isTypedChar(patch))
-        when @isBackspacedChar(patch) then chars.pop()
-    chars.join("")
+    @addPatch(patch) for patch in @transaction.patches ? []
+    @content
 
-  isTypedChar: (patch) ->
-    # Technically speaking, a typed char will be of length 1, but >= 1
-    # happens to let us test with editor.setText, so we'll look the other way.
-    return false unless patch.newText?.length >= 1 and patch.oldText?.length == 0
-    patch.newText
+  addPatch: (patch) ->
+    return unless patch.newRange?
+    if @isAppending(patch)
+      @content += patch.newText
+      @position = patch.newRange.end
+    else if @isRemovingFromEnd(patch)
+      @content = @content.substring(0, @content.length - patch.oldText.length)
+      @position = patch.newRange.end
 
-  isBackspacedChar: (patch) ->
-    patch.newText == "" and patch.oldText?.length == 1
+  isAppending: (patch) ->
+    (patch.newText.length > 0) and
+      (patch.oldText.length is 0) and
+      ((not @position) or @position.isEqual(patch.newRange.start))
+
+  isRemovingFromEnd: (patch) ->
+    (patch.newText.length is 0) and
+      (patch.oldText.length > 0) and
+      (@position and @position?.isEqual(patch.oldRange.end))
 
 module.exports = {
   Insert,
   InsertAfter,
+  InsertAfterEndOfLine,
+  InsertAtBeginningOfLine,
   InsertAboveWithNewline,
   InsertBelowWithNewline,
   Change,

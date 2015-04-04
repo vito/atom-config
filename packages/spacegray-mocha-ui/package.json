@@ -1,7 +1,7 @@
 {
   "name": "spacegray-mocha-ui",
   "theme": "ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Port of the Spacegray Sublime Text theme to Atom. UI Theme to match base16 Mocha Syntax (http://chriskempson.github.io/base16/#mocha)",
   "license": "MIT",
   "repository": {
@@ -17,12 +17,10 @@
     "url": "https://github.com/emilyemorehouse/spacegray-mocha-ui/issues"
   },
   "homepage": "https://github.com/emilyemorehouse/spacegray-mocha-ui",
-  "_id": "spacegray-mocha-ui@0.1.0",
-  "dist": {
-    "shasum": "14d59d709fca80ffc79aa1c8ec9b7c9c28301735"
-  },
-  "_resolved": "/private/var/folders/2m/6h1gtjq554gg3m6q4s6d6v_40000gn/T/d-114820-60451-1nmwb29/package.tgz",
-  "_from": "/private/var/folders/2m/6h1gtjq554gg3m6q4s6d6v_40000gn/T/d-114820-60451-1nmwb29/package.tgz",
+  "_id": "spacegray-mocha-ui@0.2.0",
+  "_shasum": "b0d27ae4459cd9e4a8002e4ba73994639a7e8efd",
+  "_resolved": "file:../d-11534-4723-546fwy/package.tgz",
+  "_from": "../d-11534-4723-546fwy/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [],

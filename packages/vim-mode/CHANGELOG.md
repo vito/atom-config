@@ -1,5 +1,35 @@
 ## HEAD
 
+## 0.41
+
+* Added ability to append to register - @jacekkopecky
+* Fixed an issue where deactivation would sometimes fail
+
+## 0.40
+
+* Fixed an issue where the search input text was not visible - @tmm1 
+* Added a different status-bar entry for visual-line mode - @jacekkopecky
+
+## 0.39
+
+* Made repeating insertions work more correctly with multiple cursors
+* Fixed bugs in `*` and `#` with cursor between words - @jacekkopecky
+
+## 0.38
+
+* Implemented change case operators: `gU`, `gu` and `g~` - @jacekkopecky
+* Fixed behavior of repeating `I` and `A` insertions - @jacekkopecky
+
+## 0.36
+
+* Fixed an issue where `d` and `c` with forward motions would sometimes
+  incorrectly delete the character before the cursor - @deiwin
+
+## 0.35
+
+* Implemented basic version of `i t` operator - @neiled
+* Made `t` motion repeatable with `;` - @jacekkopecky
+
 ## 0.34
 
 * Added a service API so that other packages can extend vim-mode - @lloeki
