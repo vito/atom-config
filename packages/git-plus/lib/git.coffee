@@ -50,7 +50,7 @@ gitStagedFiles = (stdout) ->
       files = _prettify(data)
     stderr: (data) ->
       # edge case of no HEAD at initial commit
-      if data.toString().contains "ambiguous argument 'HEAD'"
+      if data.toString().includes "ambiguous argument 'HEAD'"
         files = [1]
       else
         new StatusView(type: 'error', message: data.toString())
@@ -77,7 +77,15 @@ gitDiff = (stdout, path) ->
     args: ['diff', '-p', '-U1', path]
     stdout: (data) -> stdout _prettifyDiff(data)
 
+# Two-fold, refresh index as well as status
 gitRefreshIndex = ->
+  repo = GitRepository.open(atom.workspace.getActiveTextEditor()?.getPath(), refreshOnWindowFocus: false)
+  if repo is not null
+    repo.refreshStatus()
+    repo.destroy()
+  else
+    if repo = atom.project.getRepositories()[0]
+      repo.refreshStatus()
   gitCmd
     args: ['add', '--refresh', '--', '.']
     stderr: (data) -> # don't really need to flash an error
@@ -145,13 +153,13 @@ relativize = (path) ->
 
 # returns submodule for given file or undefined
 getSubmodule = (path) ->
-  path ?= atom.workspace.getActiveEditor()?.getPath()
+  path ?= atom.workspace.getActiveTextEditor()?.getPath()
   atom.project.getRepositories()[0]?.repo.submoduleForPath(path)
 
 # Public: Get the repository of the current file or project if no current file
 # Returns a {GitRepository}-like object or null if not found.
 getRepo = ->
-  repo = GitRepository.open(atom.workspace.getActiveEditor()?.getPath(), refreshOnWindowFocus: false)
+  repo = GitRepository.open(atom.workspace.getActiveTextEditor()?.getPath(), refreshOnWindowFocus: false)
   if repo isnt null
     data = {
       references: repo.getReferences()
