@@ -40,15 +40,15 @@ transform = ( editor, up, amount = 1 ) ->
 
 module.exports =
     activate: ->
-        atom.workspaceView.command "inc-dec-value:increment", ".editor", ->
+        atom.commands.add "atom-text-editor", "inc-dec-value:increment", ->
             currentPane = atom.workspaceView.getActivePaneItem()
             transform currentPane, yes
-        atom.workspaceView.command "inc-dec-value:decrement", ".editor", ->
+        atom.commands.add "atom-text-editor", "inc-dec-value:decrement", ->
             currentPane = atom.workspaceView.getActivePaneItem()
             transform currentPane, no
-        atom.workspaceView.command "inc-dec-value:increment-by-decade", ".editor", ->
+        atom.commands.add "atom-text-editor", "inc-dec-value:increment-by-decade", ->
             currentPane = atom.workspaceView.getActivePaneItem()
             transform currentPane, yes, 10
-        atom.workspaceView.command "inc-dec-value:decrement-by-decade", ".editor", ->
+        atom.commands.add "atom-text-editor", "inc-dec-value:decrement-by-decade", ->
             currentPane = atom.workspaceView.getActivePaneItem()
             transform currentPane, no, 10

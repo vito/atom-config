@@ -1,0 +1,9 @@
+[7333:0604/123444:ERROR:browser_main_loop.cc(170)] Running without the SUID sandbox! See https://code.google.com/p/chromium/wiki/LinuxSUIDSandboxDevelopment for more information on developing with the sandbox on.
+[7333:0604/123444:INFO:audio_manager_pulse.cc(258)] Failed to connect to the context.  Error: Connection refused
+ATTENTION: default value of option force_s3tc_enable overridden by environment.
+[7367:0604/123444:ERROR:sandbox_linux.cc(325)] InitializeSandbox() called with multiple threads in process gpu-process
+App load time: 268ms
+[7379:0604/123444:INFO:renderer_main.cc(212)] Renderer process started
+[7333:0604/123446:INFO:CONSOLE(360)] "Could not resolve 'project-palette-finder' to a package path", source: /usr/share/atom/resources/app.asar/src/package-manager.js (360)
+[7333:0604/123446:INFO:CONSOLE(360)] "Could not resolve 'pigments' to a package path", source: /usr/share/atom/resources/app.asar/src/package-manager.js (360)
+[7333:0604/123446:INFO:CONSOLE(52)] "Window load time: 1591ms", source: file:///usr/share/atom/resources/app.asar/static/index.js (52)

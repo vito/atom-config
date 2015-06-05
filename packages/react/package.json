@@ -1,6 +1,6 @@
 {
   "name": "react",
-  "version": "0.11.4",
+  "version": "0.12.0",
   "description": "React.js (JSX) language support, indentation, snippets, auto completion, reformatting",
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
     "test": "apm test"
   },
   "dependencies": {
-    "jsxformat": "~0.0.8",
+    "jsxformat": "~0.0.9",
     "lodash": "~2.4.1"
   },
   "readme": "[![Build Status](https://travis-ci.org/orktes/atom-react.svg?branch=master)](https://travis-ci.org/orktes/atom-react)\n\n# Atom React.js support\n\nVisit [orktes.github.io/atom-react](https://orktes.github.io/atom-react) for more information.\n\n## New in version 0.11 (5 April 2015)\n\n- Closing tag auto-completion [in action](https://cloud.githubusercontent.com/assets/606347/6997161/28412172-dbb9-11e4-9719-2d58b0b79b3f.gif)\n\n## Features\n\n- Syntax highlighting\n- Snippets\n- Automatic indentation and folding\n- JSX Reformatting\n- HTML to JSX conversion\n- Autocomplete\n\nContributions are greatly appreciated. Please fork this repository and open a pull request to add snippets, make grammar tweaks, etc.\n\nInitially a port of [sublime-react](https://github.com/reactjs/sublime-react) for [Atom](https://github.com/atom/atom).\n",
@@ -23,16 +23,16 @@
   "bugs": {
     "url": "https://github.com/orktes/atom-react/issues"
   },
-  "_id": "react@0.11.4",
-  "_shasum": "0a37a80c2a34ce5c8b9d3e4ac4ea682450a55b6e",
-  "_resolved": "file:../d-115311-3536-pgnvrf/package.tgz",
-  "_from": "../d-115311-3536-pgnvrf/package.tgz",
+  "_id": "react@0.12.0",
+  "_shasum": "53fdf228c92e6fcb5f06acf3cd0c04c7ae0c6f2e",
+  "_resolved": "file:../d-11554-6239-904fo5/package.tgz",
+  "_from": "../d-11554-6239-904fo5/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
       {
         "name": "jsxformat",
-        "version": "0.0.8",
+        "version": "0.0.9",
         "path": "node_modules/jsxformat/lib/index.js"
       },
       {
@@ -57,7 +57,7 @@
       },
       {
         "name": "lodash",
-        "version": "2.4.1",
+        "version": "2.4.2",
         "path": "node_modules/lodash/dist/lodash.js"
       }
     ],
@@ -115,7 +115,7 @@
           "spec/fixtures"
         ],
         "dependencies": {
-          "jsxformat": "~0.0.8",
+          "jsxformat": "~0.0.9",
           "lodash": "~2.4.1"
         }
       },

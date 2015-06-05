@@ -11,18 +11,27 @@
     softWrap: true
     scrollSensitivity: 20
     scrollPastEnd: true
-    invisibles: {}
+    invisibles:
+      {}
     autoIndentOnPaste: false
   core:
     disabledPackages: [
       "file-icons"
       "autocomplete"
       "minimap"
+      "cut-line"
       "vim-mode"
+    ]
+    themes: [
+      "one-light-ui"
+      "one-light-syntax"
     ]
   "go-plus":
     lintOnSave: false
     vetOnSave: false
+    goInstallation: "~/goroot/bin/go"
+    goPath: "~/workspace/concourse:~/go"
+    environmentOverridesConfiguration: false
   gocode:
     includeCompletionsFromAllBuffers: false
   minimap:
@@ -36,7 +45,14 @@
     ignoreWhitespaceOnCurrentLine: false
   "vim-mode":
     useSmartcaseForSearch: true
-  "tree-view": {}
-  linter: {}
-  react: {}
-  "wrap-lines": {}
+  "tree-view":
+    {}
+  linter:
+    {}
+  react:
+    {}
+  "wrap-lines":
+    {}
+  hidpi:
+    cutoffHeight: 1539
+    cutoffWidth: 2560

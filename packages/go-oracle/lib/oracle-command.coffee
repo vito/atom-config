@@ -1,70 +1,58 @@
 spawn = require('child_process').spawn
-{Subscriber, Emitter} = require 'emissary'
+{Emitter} = require 'emissary'
 
 module.exports =
 class OracleCommand
-  Subscriber.includeInto(this)
   Emitter.includeInto(this)
 
   oracleCommand: (cmd, format, importPath) ->
     path = @getPath()
     [startOffset, endOffset] = @getPosition()
 
+    gopath = @goPath()
+    env = {"GOPATH": gopath}
+    oracleCmd = atom.config.get('go-oracle.oraclePath')
+    oracleCmd = oracleCmd.replace(/^\$GOPATH\//i, gopath)
+
     args = ["-pos=#{path}:##{startOffset}", "-format=#{format}", cmd]
     args.push(importPath) if importPath?
 
-    return spawn("oracle", args)
+    console.log "#{oracleCmd} -pos=#{path}:##{startOffset} -format=plain #{cmd} #{importPath}"
+
+    return spawn(oracleCmd, args, {"env": env})
 
   constructor: ->
     this.on 'what-complete', (whatData) =>
       cmd = @oracleCommand(@nextCommand, "plain", whatData.what.importpath)
-
-      stderr = ''
-      cmd.stderr.on 'data', (data) =>
-        stderr += data
-
-      stdout = ''
+      parsedData = ''
       cmd.stdout.on 'data', (data) =>
-        stdout += data
-
+        parsedData = data
+      cmd.stderr.on 'data', (data) =>
+        console.error "Error running \""+@nextCommand + "\": " + data
       cmd.on 'close', (code) =>
-        if code
-          console.log "failed to run oracle: exit status", code
-          console.log stdout
-          console.log stderr
-
-        @emit "oracle-complete", @nextCommand, stdout
+        @emit "oracle-complete", @nextCommand, parsedData
 
   what: ->
     what = @oracleCommand("what", "json")
-
-    stderr = ''
-    what.stderr.on 'data', (data) =>
-      stderr += data
-
-    stdout = ''
+    parsedData = ''
     what.stdout.on 'data', (data) =>
-      stdout = JSON.parse(data)
-
+      parsedData = JSON.parse(data)
+    what.stderr.on 'data', (data) =>
+      console.error "Error running \"what\": " + data
     what.on 'close', (code) =>
-      if code
-        console.log "failed to run oracle what: exit status", code
-        console.log stdout
-        console.log stderr
-
-      @emit 'what-complete', stdout
+      @emit 'what-complete', parsedData
 
   command: (cmd) ->
     @nextCommand = cmd
     @what()
 
   getPath: ->
-    return atom.workspaceView.getActiveView()?.getEditor()?.getPath()
+    atom.workspace.getActiveTextEditor()?.getPath()
 
   getPosition: ->
-    editorView = atom.workspaceView.getActiveView()
-    buffer = editorView?.getEditor()?.getBuffer()
-    cursor = editorView?.getEditor()?.getCursor()
+    editor = atom.workspace.getActiveTextEditor()
+    buffer = editor?.getBuffer()
+    cursor = editor?.getLastCursor()
 
     startPosition = cursor.getBeginningOfCurrentWordBufferPosition({"includeNonWordCharacters":false})
     endPosition = cursor.getEndOfCurrentWordBufferPosition({"includeNonWordCharacters":false})
@@ -73,3 +61,11 @@ class OracleCommand
     endOffset = buffer.characterIndexForPosition(endPosition)
 
     return [startOffset, endOffset]
+
+  goPath: ->
+    gopath = ''
+    gopathEnv = process.env.GOPATH
+    gopathConfig = atom.config.get('go-oracle.goPath')
+    gopath = gopathEnv if gopathEnv? and gopathEnv isnt ''
+    gopath = gopathConfig if gopath is ''
+    return gopath + '/'

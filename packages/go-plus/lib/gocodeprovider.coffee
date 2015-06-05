@@ -16,8 +16,11 @@ class GocodeProvider
       @suppressForCharacters = _.map value, (c) ->
         char = c?.trim() or ''
         char = switch
-          when char.toLowerCase() is 'space' then ' '
           when char.toLowerCase() is 'comma' then ','
+          when char.toLowerCase() is 'newline' then '\n'
+          when char.toLowerCase() is 'space' then ' '
+          when char.toLowerCase() is 'tab' then '\t'
+          else char
         return char
       @suppressForCharacters = _.compact(@suppressForCharacters)
 
@@ -41,7 +44,7 @@ class GocodeProvider
       index = buffer.characterIndexForPosition(options.bufferPosition)
       offset = 'c' + index.toString()
       text = options.editor.getText()
-      return resolve() if text[index - 1] in @suppressForCharacters
+      return resolve() if index > 0 and text[index - 1] in @suppressForCharacters
       quotedRange = options.editor.displayBuffer.bufferRangeForScopeAtPosition('.string.quoted', options.bufferPosition)
       return resolve() if quotedRange
 
@@ -64,14 +67,14 @@ class GocodeProvider
 
       done = (exitcode, stdout, stderr, messages) =>
         console.log(@name + ' - stderr: ' + stderr) if stderr? and stderr.trim() isnt ''
-        messages = @mapMessages(stdout, text, index) if stdout? and stdout.trim() isnt ''
+        messages = @mapMessages(stdout, options.editor, options.bufferPosition) if stdout? and stdout.trim() isnt ''
         return resolve() if messages?.length < 1
         resolve(messages)
 
       @dispatch.executor.exec(cmd, cwd, env, done, args, text)
     )
 
-  mapMessages: (data, text, index) ->
+  mapMessages: (data, editor, position) ->
     return [] unless data?
     res = JSON.parse(data)
 
@@ -80,12 +83,15 @@ class GocodeProvider
 
     return [] unless candidates
 
+    prefix = editor.getTextInBufferRange([[position.row, position.column - numPrefix], position])
+
     suggestions = []
     for c in candidates
       suggestion =
-        replacementPrefix: c.name.substring(0, numPrefix)
+        replacementPrefix: prefix
         leftLabel: c.type or c.class
         type: @translateType(c.class)
+
       if c.class is 'func'
         suggestion = @upgradeSuggestion(suggestion, c)
       else
@@ -123,7 +129,7 @@ class GocodeProvider
     args = _.map args, (a) ->
       return a unless a?.length > 2
       if a.substring(a.length - 2, a.length) is '{}'
-        return a.substring(0, a.length - 2)
+        return a.substring(0, a.length - 1) + '\\}'
       return a
 
     return signature + '(${1:' + args[0] + '})' if args.length is 1

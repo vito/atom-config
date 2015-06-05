@@ -3,7 +3,7 @@ path = require 'path'
 {CompositeDisposable, Range, Point, BufferedProcess} = require 'atom'
 _ = null
 XRegExp = null
-
+{MessagePanelView} = require 'atom-message-panel'
 {log, warn} = require './utils'
 
 
@@ -48,15 +48,33 @@ class Linter
   # TODO: what does this mean?
   errorStream: 'stdout'
 
+  # Base options
+  baseOptions: ['executionTimeout']
+
+  # Child options
+  options: []
+
   # Public: Construct a linter passing it's base editor
   constructor: (@editor) ->
     @cwd = path.dirname(@editor.getPath())
 
     @subscriptions = new CompositeDisposable
-    @subscriptions.add atom.config.observe 'linter.executionTimeout', (x) =>
-      @executionTimeout = x
+
+    # Load options from `linter`
+    for option in @baseOptions
+      @subscriptions.add atom.config.observe 'linter.executionTimeout', (option) =>
+        @[option] = option
+        log "Updating `linter` #{option} to #{@[option]}"
+
+    # Load options from `linter-child`
+    for option in @options
+      @subscriptions.add atom.config.observe "linter-#{@linterName}.#{option}", @updateOption.bind(this, option)
 
     @_statCache = new Map()
+
+  updateOption: (option) =>
+    @[option] = atom.config.get "linter-#{@linterName}.#{option}"
+    log "Updating `linter-#{@linterName}` #{option} to #{@[option]}"
 
   destroy: ->
     @subscriptions.dispose()
@@ -154,8 +172,40 @@ class Linter
         else data = dataStderr
       @processMessage data, callback
 
+    {command, args, options} = @beforeSpawnProcess(command, args, options)
+    log("beforeSpawnProcess:", command, args, options)
+
     process = new BufferedProcess({command, args, options,
                                   stdout, stderr, exit})
+    process.onWillThrowError (err) =>
+      return unless err?
+      if err.error.code is 'ENOENT'
+        ignored = atom.config.get('linter.ignoredLinterErrors')
+        subtle = atom.config.get('linter.subtleLinterErrors')
+        warningMessageTitle = "The linter binary '#{@linterName}' cannot be found."
+        if @linterName in subtle
+          # Show a small notification at the bottom of the screen
+          message = new MessagePanelView(title: warningMessageTitle)
+          message.attach()
+          message.toggle() # Fold the panel
+        else if @linterName not in ignored
+          # Prompt user, ask if they want to fully or partially ignore warnings
+          atom.confirm
+            message: warningMessageTitle
+            detailedMessage: 'Is it on your path? Please follow the installation
+            guide for your linter. Would you like further notifications to be
+            fully or partially suppressed? You can change this later in the
+            linter package settings.'
+            buttons:
+              Fully: =>
+                ignored.push @linterName
+                atom.config.set('linter.ignoredLinterErrors', ignored)
+              Partially: =>
+                subtle.push @linterName
+                atom.config.set('linter.subtleLinterErrors', subtle)
+        else
+          console.log warningMessageTitle
+        err.handle()
 
     # Kill the linter process if it takes too long
     if @executionTimeout > 0
@@ -164,6 +214,16 @@ class Linter
         process.kill()
         warn "command `#{command}` timed out after #{@executionTimeout} ms"
       , @executionTimeout
+
+  # Public: Gives subclasses a chance to read or change the command, args and
+  #         options, before creating new BufferedProcess while lintFile.
+  #   command: a string of executablePath
+  #   args: an array of string arguments
+  #   options: an object of options (has cwd field)
+  # Returns an object of {command, args, options}
+  # Override this if you want to read or change these arguments
+  beforeSpawnProcess: (command, args, options) =>
+    {command: command, args: args, options: options}
 
   # Private: process the string result of a linter execution using the regex
   #          as the message builder
@@ -200,7 +260,7 @@ class Linter
     else if match.info
       level = 'info'
     else
-      level = @defaultLevel
+      level = match.level or 'error'
 
     # If no line/col is found, assume a full file error
     # TODO: This conflicts with the docs above that say line is required :(
